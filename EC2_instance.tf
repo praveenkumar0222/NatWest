@@ -3,18 +3,6 @@ provider "aws" {
 }
 
 
-# resource "aws_key_pair" "example_keypair" {
-#   key_name   = "example_keypair"
-#   public_key = file("~/.ssh/id_rsa.pub") 
-# }
-
-resource "aws_key_pair" "PRVN" {
-  key_name   = "PRVN"
-  public_key = file("/home/ec2-user/PRVN.pem")
-}
-
-
-
 resource "aws_security_group" "natwest_group" {
   name        = "NatWest_Group_security_group"
   description = "Security group for NatWest"
@@ -52,7 +40,6 @@ resource "aws_security_group" "natwest_group" {
 resource "aws_instance" "example_instance" {
   ami           = "ami-0005e0cfe09cc9050"  
   instance_type = "t2.micro"
-  key_name      = aws_key_pair.PRVN.key_name
   security_groups = [aws_security_group.natwest_group.name]
 
   tags = {
