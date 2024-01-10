@@ -12,7 +12,7 @@ def count_objects_in_bucket(bucket_name):
     total_objects = response.get('KeyCount', 0)
     print(f"Total number of objects in '{bucket_name}': {total_objects}")
 
-specified_bucket = ' natwestgroup'
+specified_bucket = 'natwestgroup'
 
 list_all_buckets()
 count_objects_in_bucket(specified_bucket)
