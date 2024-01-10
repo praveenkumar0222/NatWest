@@ -40,6 +40,7 @@ resource "aws_security_group" "natwest_group" {
 resource "aws_instance" "example_instance" {
   ami           = "ami-0005e0cfe09cc9050"  
   instance_type = "t2.micro"
+  key_name      = "PRVN"
   security_groups = [aws_security_group.natwest_group.name]
 
   tags = {
