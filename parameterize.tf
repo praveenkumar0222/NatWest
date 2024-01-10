@@ -15,13 +15,9 @@ variable "security_group_name" {
 }
 
 variable "bucket_name" {
-  default = "test_natwest_group"
+  default = "testnatwestgroup"
 }
 
-resource "aws_key_pair" "PRVN" {
-  key_name   = var.key_pair_name
-  public_key = file("/home/ec2-user/PRVN.pem")
-}
 
 resource "aws_security_group" "natwest_group" {
   name        = var.security_group_name
@@ -69,7 +65,6 @@ resource "aws_instance" "example_instance" {
 
 resource "aws_s3_bucket" "website_bucket" {
   bucket = var.bucket_name
-  acl    = "public-read"
 
   website {
     index_document = "index.html"
