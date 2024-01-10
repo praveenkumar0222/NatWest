@@ -4,7 +4,7 @@ if [ $# -eq 0 ]; then
     exit 1
 fi
 EC2_IP=$1
-ssh -i /home/ubuntu/PRVN.pem ec2-user@$EC2_IP << 'EOF'
+ssh -i /home/ec2-user/PRVN.pem ec2-user@$EC2_IP << 'EOF'
 sudo yum update -y
 sudo yum install nginx -y
 sudo systemctl start nginx
