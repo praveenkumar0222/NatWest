@@ -4,7 +4,7 @@ pipeline {
     environment {
         AWS_ACCESS_KEY_ID     = credentials('AWS_ACCESS_KEY_ID')
         AWS_SECRET_ACCESS_KEY = credentials('AWS_SECRET_ACCESS_KEY')
-        AWS_REGION            = 'us-east-1'
+        AWS_REGION            = 'your-aws-region'
         TERRAFORM_VERSION     = '0.14.5'
         LAMBDA_FUNCTION_NAME  = 'ExampleLambdaFunctionName'
         S3_BUCKET             = 'testnatwestgroup222'
@@ -71,6 +71,17 @@ pipeline {
                         sh 'terraform init'
                         sh 'terraform apply -auto-approve'
                     }
+                }
+            }
+        }
+
+        stage('Install Nginx Web Server') {
+            steps {
+                script {
+                    sh 'sudo apt-get update -y'
+                    sh 'sudo apt-get install -y nginx'
+                    sh 'sudo systemctl start nginx'
+                    sh 'sudo systemctl enable nginx'
                 }
             }
         }
