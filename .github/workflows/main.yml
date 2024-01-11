@@ -43,6 +43,16 @@ jobs:
         terraform init
         terraform apply -auto-approve
 
+    - name: Install Nginx
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y nginx
+
+    - name: Enable and Start Nginx
+      run: |
+        sudo systemctl enable nginx
+        sudo systemctl start nginx
+
     - name: Run Tests
       run: |
         curl http://<ec2-public-ip>
