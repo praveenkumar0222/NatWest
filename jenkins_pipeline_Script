@@ -1,0 +1,97 @@
+pipeline {
+    agent any
+
+    environment {
+        AWS_ACCESS_KEY_ID     = credentials('AWS_ACCESS_KEY_ID')
+        AWS_SECRET_ACCESS_KEY = credentials('AWS_SECRET_ACCESS_KEY')
+        AWS_REGION            = 'us-east-1'
+        TERRAFORM_VERSION     = '0.14.5'
+        LAMBDA_FUNCTION_NAME  = 'ExampleLambdaFunctionName'
+        S3_BUCKET             = 'testnatwestgroup222'
+        S3_KEY                = 'ExampleLambdaZipFile.zip'
+        EC2_PUBLIC_IP         = sh(script: 'cd infrastructure && terraform output ec2_public_ip', returnStdout: true).trim()
+    }
+
+    stages {
+        stage('Checkout Repository') {
+            steps {
+                script {
+                    checkout scm
+                }
+            }
+        }
+
+        stage('Set up AWS CLI') {
+            steps {
+                script {
+                    withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', accessKeyVariable: 'AWS_ACCESS_KEY_ID', secretKeyVariable: 'AWS_SECRET_ACCESS_KEY', credentialsId: 'your-aws-credentials-id']]) {
+                        sh "aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID"
+                        sh "aws configure set aws_secret_access_key $AWS_SECRET_ACCESS_KEY"
+                        sh "aws configure set region $AWS_REGION"
+                    }
+                }
+            }
+        }
+
+        stage('Install Terraform') {
+            steps {
+                script {
+                    sh "wget https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_amd64.zip"
+                    sh "unzip terraform_${TERRAFORM_VERSION}_linux_amd64.zip"
+                    sh "sudo mv terraform /usr/local/bin/"
+                }
+            }
+        }
+
+        stage('Terraform Init and Apply') {
+            steps {
+                script {
+                    dir('infrastructure') {
+                        sh 'terraform init'
+                        sh 'terraform apply -auto-approve'
+                    }
+                }
+            }
+        }
+
+        stage('Deploy Lambda Function') {
+            steps {
+                script {
+                    dir('lambda') {
+                        sh "aws lambda update-function-code --function-name ${LAMBDA_FUNCTION_NAME} --s3-bucket ${S3_BUCKET} --s3-key ${S3_KEY}"
+                    }
+                }
+            }
+        }
+
+        stage('Deploy EC2 Instance') {
+            steps {
+                script {
+                    dir('infrastructure') {
+                        sh 'terraform init'
+                        sh 'terraform apply -auto-approve'
+                    }
+                }
+            }
+        }
+
+        stage('Run Tests') {
+            steps {
+                script {
+                    sh "curl http://${EC2_PUBLIC_IP}"
+                }
+            }
+        }
+
+        stage('Deploy to S3') {
+            steps {
+                script {
+                    dir('infrastructure') {
+                        sh 'terraform init'
+                        sh 'terraform apply -auto-approve'
+                    }
+                }
+            }
+        }
+    }
+}
